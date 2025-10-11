@@ -47,9 +47,6 @@ public class Tour {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal cijena;
     
-    @Column(name = "kljucna_tacka_id")
-    private Long kljucnaTackaId;
-    
     @Column(name = "recenzija_id")
     private Long recenzijaId;
     
@@ -141,14 +138,6 @@ public class Tour {
     
     public void setCijena(BigDecimal cijena) {
         this.cijena = cijena;
-    }
-    
-    public Long getKljucnaTackaId() {
-        return kljucnaTackaId;
-    }
-    
-    public void setKljucnaTackaId(Long kljucnaTackaId) {
-        this.kljucnaTackaId = kljucnaTackaId;
     }
     
     public Long getRecenzijaId() {
