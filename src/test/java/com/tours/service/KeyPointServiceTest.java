@@ -116,3 +116,4 @@ class KeyPointServiceTest {
         verify(keyPointRepository, never()).delete(any());
     }
 }
+

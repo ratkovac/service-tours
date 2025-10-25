@@ -96,3 +96,4 @@ public class KeyPointService {
         return keyPointRepository.countByAuthorId(autorId);
     }
 }
+

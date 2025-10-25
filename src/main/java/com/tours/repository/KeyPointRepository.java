@@ -27,3 +27,4 @@ public interface KeyPointRepository extends JpaRepository<KeyPoint, Long> {
     @Query("SELECT COUNT(kp) FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE t.autorId = :autorId")
     long countByAuthorId(@Param("autorId") Long autorId);
 }
+

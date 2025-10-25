@@ -121,3 +121,4 @@ public class KeyPointController {
         return ResponseEntity.ok(Map.of("count", count));
     }
 }
+
