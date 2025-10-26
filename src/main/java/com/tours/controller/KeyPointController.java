@@ -12,8 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/keypoints")
-@CrossOrigin(origins = "*")
+@RequestMapping("/keypoints")
 public class KeyPointController {
     
     private final KeyPointService keyPointService;
@@ -25,7 +24,7 @@ public class KeyPointController {
     
     @PostMapping
     public ResponseEntity<?> createKeyPoint(@RequestBody Map<String, Object> request,
-                                           @RequestHeader("X-Author-Id") Long autorId) {
+                                           @RequestHeader("X-Username") String autorUsername) {
         try {
             String naziv = (String) request.get("naziv");
             String opis = (String) request.get("opis");
@@ -34,7 +33,7 @@ public class KeyPointController {
             String slikaUrl = (String) request.get("slikaUrl");
             Long tourId = Long.valueOf(request.get("tourId").toString());
             
-            KeyPoint keyPoint = keyPointService.createKeyPoint(naziv, opis, latitude, longitude, slikaUrl, tourId, autorId);
+            KeyPoint keyPoint = keyPointService.createKeyPoint(naziv, opis, latitude, longitude, slikaUrl, tourId, autorUsername);
             return ResponseEntity.status(HttpStatus.CREATED).body(keyPoint);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -44,9 +43,9 @@ public class KeyPointController {
     
     @GetMapping("/tour/{tourId}")
     public ResponseEntity<?> getKeyPointsByTour(@PathVariable Long tourId,
-                                              @RequestHeader("X-Author-Id") Long autorId) {
+                                              @RequestHeader("X-Username") String autorUsername) {
         try {
-            List<KeyPoint> keyPoints = keyPointService.getAllKeyPointsByTour(tourId, autorId);
+            List<KeyPoint> keyPoints = keyPointService.getAllKeyPointsByTour(tourId, autorUsername);
             return ResponseEntity.ok(keyPoints);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -55,15 +54,15 @@ public class KeyPointController {
     }
     
     @GetMapping
-    public ResponseEntity<List<KeyPoint>> getAllKeyPointsByAuthor(@RequestHeader("X-Author-Id") Long autorId) {
-        List<KeyPoint> keyPoints = keyPointService.getAllKeyPointsByAuthor(autorId);
+    public ResponseEntity<List<KeyPoint>> getAllKeyPointsByAuthor(@RequestHeader("X-Username") String autorUsername) {
+        List<KeyPoint> keyPoints = keyPointService.getAllKeyPointsByAuthor(autorUsername);
         return ResponseEntity.ok(keyPoints);
     }
     
     @GetMapping("/{id}")
     public ResponseEntity<?> getKeyPointById(@PathVariable Long id,
-                                           @RequestHeader("X-Author-Id") Long autorId) {
-        Optional<KeyPoint> keyPoint = keyPointService.getKeyPointById(id, autorId);
+                                           @RequestHeader("X-Username") String autorUsername) {
+        Optional<KeyPoint> keyPoint = keyPointService.getKeyPointById(id, autorUsername);
         if (keyPoint.isPresent()) {
             return ResponseEntity.ok(keyPoint.get());
         } else {
@@ -75,7 +74,7 @@ public class KeyPointController {
     @PutMapping("/{id}")
     public ResponseEntity<?> updateKeyPoint(@PathVariable Long id,
                                            @RequestBody Map<String, Object> request,
-                                           @RequestHeader("X-Author-Id") Long autorId) {
+                                           @RequestHeader("X-Username") String autorUsername) {
         try {
             String naziv = (String) request.get("naziv");
             String opis = (String) request.get("opis");
@@ -83,7 +82,7 @@ public class KeyPointController {
             Double longitude = Double.valueOf(request.get("longitude").toString());
             String slikaUrl = (String) request.get("slikaUrl");
             
-            KeyPoint updatedKeyPoint = keyPointService.updateKeyPoint(id, naziv, opis, latitude, longitude, slikaUrl, autorId);
+            KeyPoint updatedKeyPoint = keyPointService.updateKeyPoint(id, naziv, opis, latitude, longitude, slikaUrl, autorUsername);
             return ResponseEntity.ok(updatedKeyPoint);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -93,8 +92,8 @@ public class KeyPointController {
     
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteKeyPoint(@PathVariable Long id,
-                                          @RequestHeader("X-Author-Id") Long autorId) {
-        boolean deleted = keyPointService.deleteKeyPoint(id, autorId);
+                                          @RequestHeader("X-Username") String autorUsername) {
+        boolean deleted = keyPointService.deleteKeyPoint(id, autorUsername);
         if (deleted) {
             return ResponseEntity.ok(Map.of("message", "Ključna tačka je uspešno obrisana"));
         } else {
@@ -105,9 +104,9 @@ public class KeyPointController {
     
     @GetMapping("/tour/{tourId}/count")
     public ResponseEntity<?> getKeyPointCountByTour(@PathVariable Long tourId,
-                                                   @RequestHeader("X-Author-Id") Long autorId) {
+                                                   @RequestHeader("X-Username") String autorUsername) {
         try {
-            long count = keyPointService.countKeyPointsByTour(tourId, autorId);
+            long count = keyPointService.countKeyPointsByTour(tourId, autorUsername);
             return ResponseEntity.ok(Map.of("count", count));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -116,8 +115,9 @@ public class KeyPointController {
     }
     
     @GetMapping("/count")
-    public ResponseEntity<Map<String, Object>> getKeyPointCountByAuthor(@RequestHeader("X-Author-Id") Long autorId) {
-        long count = keyPointService.countKeyPointsByAuthor(autorId);
+    public ResponseEntity<Map<String, Object>> getKeyPointCountByAuthor(@RequestHeader("X-Username") String autorUsername) {
+        long count = keyPointService.countKeyPointsByAuthor(autorUsername);
         return ResponseEntity.ok(Map.of("count", count));
     }
 }
+

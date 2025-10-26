@@ -25,9 +25,9 @@ public class KeyPointService {
     }
     
     public KeyPoint createKeyPoint(String naziv, String opis, Double latitude, Double longitude, 
-                                  String slikaUrl, Long tourId, Long autorId) {
+                                  String slikaUrl, Long tourId, String autorUsername) {
         Optional<Tour> tour = tourRepository.findById(tourId);
-        if (tour.isEmpty() || !tour.get().getAutorId().equals(autorId)) {
+        if (tour.isEmpty() || !tour.get().getAutorUsername().equals(autorUsername)) {
             throw new IllegalArgumentException("Tura nije pronađena ili ne pripada autoru");
         }
         
@@ -36,28 +36,28 @@ public class KeyPointService {
     }
     
     @Transactional(readOnly = true)
-    public List<KeyPoint> getAllKeyPointsByTour(Long tourId, Long autorId) {
+    public List<KeyPoint> getAllKeyPointsByTour(Long tourId, String autorUsername) {
         Optional<Tour> tour = tourRepository.findById(tourId);
-        if (tour.isEmpty() || !tour.get().getAutorId().equals(autorId)) {
+        if (tour.isEmpty() || !tour.get().getAutorUsername().equals(autorUsername)) {
             throw new IllegalArgumentException("Tura nije pronađena ili ne pripada autoru");
         }
         
-        return keyPointRepository.findByTourIdAndAuthorId(tourId, autorId);
+        return keyPointRepository.findByTourIdAndAuthorUsername(tourId, autorUsername);
     }
     
     @Transactional(readOnly = true)
-    public List<KeyPoint> getAllKeyPointsByAuthor(Long autorId) {
-        return keyPointRepository.findByAuthorId(autorId);
+    public List<KeyPoint> getAllKeyPointsByAuthor(String autorUsername) {
+        return keyPointRepository.findByAuthorUsername(autorUsername);
     }
     
     @Transactional(readOnly = true)
-    public Optional<KeyPoint> getKeyPointById(Long keyPointId, Long autorId) {
-        return keyPointRepository.findByIdAndAuthorId(keyPointId, autorId);
+    public Optional<KeyPoint> getKeyPointById(Long keyPointId, String autorUsername) {
+        return keyPointRepository.findByIdAndAuthorUsername(keyPointId, autorUsername);
     }
     
     public KeyPoint updateKeyPoint(Long keyPointId, String naziv, String opis, Double latitude, 
-                                  Double longitude, String slikaUrl, Long autorId) {
-        Optional<KeyPoint> existingKeyPoint = keyPointRepository.findByIdAndAuthorId(keyPointId, autorId);
+                                  Double longitude, String slikaUrl, String autorUsername) {
+        Optional<KeyPoint> existingKeyPoint = keyPointRepository.findByIdAndAuthorUsername(keyPointId, autorUsername);
         if (existingKeyPoint.isEmpty()) {
             throw new IllegalArgumentException("Ključna tačka nije pronađena");
         }
@@ -72,8 +72,8 @@ public class KeyPointService {
         return keyPointRepository.save(keyPoint);
     }
     
-    public boolean deleteKeyPoint(Long keyPointId, Long autorId) {
-        Optional<KeyPoint> keyPoint = keyPointRepository.findByIdAndAuthorId(keyPointId, autorId);
+    public boolean deleteKeyPoint(Long keyPointId, String autorUsername) {
+        Optional<KeyPoint> keyPoint = keyPointRepository.findByIdAndAuthorUsername(keyPointId, autorUsername);
         if (keyPoint.isPresent()) {
             keyPointRepository.delete(keyPoint.get());
             return true;
@@ -82,9 +82,9 @@ public class KeyPointService {
     }
     
     @Transactional(readOnly = true)
-    public long countKeyPointsByTour(Long tourId, Long autorId) {
+    public long countKeyPointsByTour(Long tourId, String autorUsername) {
         Optional<Tour> tour = tourRepository.findById(tourId);
-        if (tour.isEmpty() || !tour.get().getAutorId().equals(autorId)) {
+        if (tour.isEmpty() || !tour.get().getAutorUsername().equals(autorUsername)) {
             return 0;
         }
         
@@ -92,7 +92,8 @@ public class KeyPointService {
     }
     
     @Transactional(readOnly = true)
-    public long countKeyPointsByAuthor(Long autorId) {
-        return keyPointRepository.countByAuthorId(autorId);
+    public long countKeyPointsByAuthor(String autorUsername) {
+        return keyPointRepository.countByAuthorUsername(autorUsername);
     }
 }
+

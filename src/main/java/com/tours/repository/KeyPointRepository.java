@@ -13,17 +13,18 @@ public interface KeyPointRepository extends JpaRepository<KeyPoint, Long> {
     
     List<KeyPoint> findByTourId(Long tourId);
     
-    @Query("SELECT kp FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE t.autorId = :autorId")
-    List<KeyPoint> findByAuthorId(@Param("autorId") Long autorId);
+    @Query("SELECT kp FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE t.autorUsername = :autorUsername")
+    List<KeyPoint> findByAuthorUsername(@Param("autorUsername") String autorUsername);
     
-    @Query("SELECT kp FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE kp.tourId = :tourId AND t.autorId = :autorId")
-    List<KeyPoint> findByTourIdAndAuthorId(@Param("tourId") Long tourId, @Param("autorId") Long autorId);
+    @Query("SELECT kp FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE kp.tourId = :tourId AND t.autorUsername = :autorUsername")
+    List<KeyPoint> findByTourIdAndAuthorUsername(@Param("tourId") Long tourId, @Param("autorUsername") String autorUsername);
     
-    @Query("SELECT kp FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE kp.id = :keyPointId AND t.autorId = :autorId")
-    java.util.Optional<KeyPoint> findByIdAndAuthorId(@Param("keyPointId") Long keyPointId, @Param("autorId") Long autorId);
+    @Query("SELECT kp FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE kp.id = :keyPointId AND t.autorUsername = :autorUsername")
+    java.util.Optional<KeyPoint> findByIdAndAuthorUsername(@Param("keyPointId") Long keyPointId, @Param("autorUsername") String autorUsername);
     
     long countByTourId(Long tourId);
     
-    @Query("SELECT COUNT(kp) FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE t.autorId = :autorId")
-    long countByAuthorId(@Param("autorId") Long autorId);
+    @Query("SELECT COUNT(kp) FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE t.autorUsername = :autorUsername")
+    long countByAuthorUsername(@Param("autorUsername") String autorUsername);
 }
+

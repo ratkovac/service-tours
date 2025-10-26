@@ -13,7 +13,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,17 +28,17 @@ class TourServiceTest {
     private TourService tourService;
 
     private Tour testTour;
-    private Long testAuthorId;
+    private String testAutorUsername;
 
     @BeforeEach
     void setUp() {
-        testAuthorId = 1L;
+        testAutorUsername = "testuser";
         testTour = new Tour(
             "Test Tura",
             "Opis test ture",
             "planina, priroda",
             Difficulty.MEDIUM,
-            testAuthorId
+            testAutorUsername
         );
         testTour.setId(1L);
     }
@@ -53,26 +52,26 @@ class TourServiceTest {
             "Opis test ture",
             "planina, priroda",
             Difficulty.MEDIUM,
-            testAuthorId
+            testAutorUsername
         );
 
         assertNotNull(result);
         assertEquals(TourStatus.DRAFT, result.getStatus());
         assertEquals(0, result.getCijena().compareTo(java.math.BigDecimal.ZERO));
-        assertEquals(testAuthorId, result.getAutorId());
+        assertEquals(testAutorUsername, result.getAutorUsername());
         verify(tourRepository, times(1)).save(any(Tour.class));
     }
 
     @Test
     void getAllToursByAuthor_ShouldReturnToursForAuthor() {
         List<Tour> expectedTours = Arrays.asList(testTour);
-        when(tourRepository.findByAutorId(testAuthorId)).thenReturn(expectedTours);
+        when(tourRepository.findByAutorUsername(testAutorUsername)).thenReturn(expectedTours);
 
-        List<Tour> result = tourService.getAllToursByAuthor(testAuthorId);
+        List<Tour> result = tourService.getAllToursByAuthor(testAutorUsername);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(testTour.getId(), result.get(0).getId());
-        verify(tourRepository, times(1)).findByAutorId(testAuthorId);
+        verify(tourRepository, times(1)).findByAutorUsername(testAutorUsername);
     }
 }

@@ -33,16 +33,16 @@ class KeyPointServiceTest {
 
     private KeyPoint testKeyPoint;
     private Tour testTour;
-    private Long testAuthorId;
+    private String testAutorUsername;
     private Long testTourId;
 
     @BeforeEach
     void setUp() {
-        testAuthorId = 1L;
+        testAutorUsername = "testuser";
         testTourId = 1L;
         
         testTour = new Tour("Test Tura", "Opis test ture", "planina, priroda", 
-                          com.tours.enums.Difficulty.MEDIUM, testAuthorId);
+                          com.tours.enums.Difficulty.MEDIUM, testAutorUsername);
         testTour.setId(testTourId);
         
         testKeyPoint = new KeyPoint("Muzej", "Opis muzeja", 44.7866, 20.4489, 
@@ -57,7 +57,7 @@ class KeyPointServiceTest {
 
         KeyPoint result = keyPointService.createKeyPoint(
             "Muzej", "Opis muzeja", 44.7866, 20.4489, 
-            "http://example.com/slika.jpg", testTourId, testAuthorId
+            "http://example.com/slika.jpg", testTourId, testAutorUsername
         );
 
         assertNotNull(result);
@@ -71,15 +71,15 @@ class KeyPointServiceTest {
     @Test
     void getAllKeyPointsByTour_ShouldReturnKeyPointsForTour() {
         when(tourRepository.findById(testTourId)).thenReturn(Optional.of(testTour));
-        when(keyPointRepository.findByTourIdAndAuthorId(testTourId, testAuthorId))
+        when(keyPointRepository.findByTourIdAndAuthorUsername(testTourId, testAutorUsername))
             .thenReturn(Arrays.asList(testKeyPoint));
 
-        List<KeyPoint> result = keyPointService.getAllKeyPointsByTour(testTourId, testAuthorId);
+        List<KeyPoint> result = keyPointService.getAllKeyPointsByTour(testTourId, testAutorUsername);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(testKeyPoint.getId(), result.get(0).getId());
-        verify(keyPointRepository, times(1)).findByTourIdAndAuthorId(testTourId, testAuthorId);
+        verify(keyPointRepository, times(1)).findByTourIdAndAuthorUsername(testTourId, testAutorUsername);
     }
 
     @Test
@@ -89,30 +89,31 @@ class KeyPointServiceTest {
         assertThrows(IllegalArgumentException.class, () -> {
             keyPointService.createKeyPoint(
                 "Muzej", "Opis muzeja", 44.7866, 20.4489, 
-                "http://example.com/slika.jpg", testTourId, testAuthorId
+                "http://example.com/slika.jpg", testTourId, testAutorUsername
             );
         });
     }
 
     @Test
     void deleteKeyPoint_ShouldReturnTrueWhenKeyPointDeleted() {
-        when(keyPointRepository.findByIdAndAuthorId(1L, testAuthorId)).thenReturn(Optional.of(testKeyPoint));
+        when(keyPointRepository.findByIdAndAuthorUsername(1L, testAutorUsername)).thenReturn(Optional.of(testKeyPoint));
 
-        boolean result = keyPointService.deleteKeyPoint(1L, testAuthorId);
+        boolean result = keyPointService.deleteKeyPoint(1L, testAutorUsername);
 
         assertTrue(result);
-        verify(keyPointRepository, times(1)).findByIdAndAuthorId(1L, testAuthorId);
+        verify(keyPointRepository, times(1)).findByIdAndAuthorUsername(1L, testAutorUsername);
         verify(keyPointRepository, times(1)).delete(testKeyPoint);
     }
 
     @Test
     void deleteKeyPoint_ShouldReturnFalseWhenKeyPointNotFound() {
-        when(keyPointRepository.findByIdAndAuthorId(999L, testAuthorId)).thenReturn(Optional.empty());
+        when(keyPointRepository.findByIdAndAuthorUsername(999L, testAutorUsername)).thenReturn(Optional.empty());
 
-        boolean result = keyPointService.deleteKeyPoint(999L, testAuthorId);
+        boolean result = keyPointService.deleteKeyPoint(999L, testAutorUsername);
 
         assertFalse(result);
-        verify(keyPointRepository, times(1)).findByIdAndAuthorId(999L, testAuthorId);
+        verify(keyPointRepository, times(1)).findByIdAndAuthorUsername(999L, testAutorUsername);
         verify(keyPointRepository, never()).delete(any());
     }
 }
+

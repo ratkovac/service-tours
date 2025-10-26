@@ -14,65 +14,74 @@ import java.util.Optional;
 @Service
 @Transactional
 public class TourService {
-    
+
     private final TourRepository tourRepository;
-    
+
     @Autowired
     public TourService(TourRepository tourRepository) {
         this.tourRepository = tourRepository;
     }
-    
-    public Tour createTour(String naziv, String opis, String tagovi, Difficulty tezina, Long autorId) {
-        Tour tour = new Tour(naziv, opis, tagovi, tezina, autorId);
+
+    // Promenjeno: String autorUsername umesto Long autorId
+    public Tour createTour(String naziv, String opis, String tagovi, Difficulty tezina, String autorUsername) {
+        Tour tour = new Tour(naziv, opis, tagovi, tezina, autorUsername);
         return tourRepository.save(tour);
     }
-    
+
     @Transactional(readOnly = true)
-    public List<Tour> getAllToursByAuthor(Long autorId) {
-        return tourRepository.findByAutorId(autorId);
+    // Promenjeno: String autorUsername
+    public List<Tour> getAllToursByAuthor(String autorUsername) {
+        return tourRepository.findByAutorUsername(autorUsername);
     }
-    
+
     @Transactional(readOnly = true)
-    public Optional<Tour> getTourByIdAndAuthor(Long tourId, Long autorId) {
+    // Promenjeno: String autorUsername
+    public Optional<Tour> getTourByIdAndAuthor(Long tourId, String autorUsername) {
         return tourRepository.findById(tourId)
-                .filter(tour -> tour.getAutorId().equals(autorId));
+                .filter(tour -> tour.getAutorUsername().equals(autorUsername));
     }
-    
+
     @Transactional(readOnly = true)
-    public List<Tour> getToursByStatusAndAuthor(TourStatus status, Long autorId) {
-        return tourRepository.findByAutorIdAndStatus(autorId, status.name());
+    // Promenjeno: String autorUsername
+    public List<Tour> getToursByStatusAndAuthor(TourStatus status, String autorUsername) {
+        return tourRepository.findByAutorUsernameAndStatus(autorUsername, status.name());
     }
-    
+
     @Transactional(readOnly = true)
-    public List<Tour> getToursByDifficultyAndAuthor(Difficulty difficulty, Long autorId) {
-        return tourRepository.findByAutorIdAndTezina(autorId, difficulty.name());
+    // Promenjeno: String autorUsername
+    public List<Tour> getToursByDifficultyAndAuthor(Difficulty difficulty, String autorUsername) {
+        return tourRepository.findByAutorUsernameAndTezina(autorUsername, difficulty.name());
     }
-    
+
     @Transactional(readOnly = true)
-    public List<Tour> getToursByTagAndAuthor(String tag, Long autorId) {
-        return tourRepository.findByTagAndAutorId(tag, autorId);
+    // Promenjeno: String autorUsername
+    public List<Tour> getToursByTagAndAuthor(String tag, String autorUsername) {
+        return tourRepository.findByTagAndAutorUsername(tag, autorUsername);
     }
-    
+
     public Tour updateTour(Tour tour) {
         return tourRepository.save(tour);
     }
-    
-    public boolean deleteTour(Long tourId, Long autorId) {
-        Optional<Tour> tour = getTourByIdAndAuthor(tourId, autorId);
+
+    // Promenjeno: String autorUsername
+    public boolean deleteTour(Long tourId, String autorUsername) {
+        Optional<Tour> tour = getTourByIdAndAuthor(tourId, autorUsername);
         if (tour.isPresent()) {
             tourRepository.delete(tour.get());
             return true;
         }
         return false;
     }
-    
+
     @Transactional(readOnly = true)
-    public long countToursByAuthor(Long autorId) {
-        return tourRepository.countByAutorId(autorId);
+    // Promenjeno: String autorUsername
+    public long countToursByAuthor(String autorUsername) {
+        return tourRepository.countByAutorUsername(autorUsername);
     }
-    
+
     @Transactional(readOnly = true)
-    public long countToursByStatusAndAuthor(TourStatus status, Long autorId) {
-        return tourRepository.countByAutorIdAndStatus(autorId, status.name());
+    // Promenjeno: String autorUsername
+    public long countToursByStatusAndAuthor(TourStatus status, String autorUsername) {
+        return tourRepository.countByAutorUsernameAndStatus(autorUsername, status.name());
     }
 }

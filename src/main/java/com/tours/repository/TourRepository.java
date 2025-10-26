@@ -10,17 +10,23 @@ import java.util.List;
 
 @Repository
 public interface TourRepository extends JpaRepository<Tour, Long> {
-    
-    List<Tour> findByAutorId(Long autorId);
-    
-    List<Tour> findByAutorIdAndStatus(Long autorId, String status);
-    
-    List<Tour> findByAutorIdAndTezina(Long autorId, String tezina);
-    
-    @Query("SELECT t FROM Tour t WHERE t.tagovi LIKE %:tag% AND t.autorId = :autorId")
-    List<Tour> findByTagAndAutorId(@Param("tag") String tag, @Param("autorId") Long autorId);
-    
-    long countByAutorId(Long autorId);
-    
-    long countByAutorIdAndStatus(Long autorId, String status);
+
+    // Promenjeno: findByAutorUsername umesto findByAutorId
+    List<Tour> findByAutorUsername(String autorUsername);
+
+    // Promenjeno: findByAutorUsernameAndStatus
+    List<Tour> findByAutorUsernameAndStatus(String autorUsername, String status);
+
+    // Promenjeno: findByAutorUsernameAndTezina
+    List<Tour> findByAutorUsernameAndTezina(String autorUsername, String tezina);
+
+    // Promenjeno: Query mora da koristi autorUsername
+    @Query("SELECT t FROM Tour t WHERE t.tagovi LIKE %:tag% AND t.autorUsername = :autorUsername")
+    List<Tour> findByTagAndAutorUsername(@Param("tag") String tag, @Param("autorUsername") String autorUsername);
+
+    // Promenjeno: countByAutorUsername
+    long countByAutorUsername(String autorUsername);
+
+    // Promenjeno: countByAutorUsernameAndStatus
+    long countByAutorUsernameAndStatus(String autorUsername, String status);
 }

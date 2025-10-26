@@ -49,9 +49,9 @@ public class Tour {
     
     @Column(name = "recenzija_id")
     private Long recenzijaId;
-    
-    @Column(name = "autor_id", nullable = false)
-    private Long autorId;
+
+    @Column(name = "autor_username")
+    private String autorUsername;
     
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -62,14 +62,14 @@ public class Tour {
     public Tour() {
     }
     
-    public Tour(String naziv, String opis, String tagovi, Difficulty tezina, Long autorId) {
+    public Tour(String naziv, String opis, String tagovi, Difficulty tezina, String autorUsername) {
         this.naziv = naziv;
         this.opis = opis;
         this.tagovi = tagovi;
         this.tezina = tezina;
         this.status = TourStatus.DRAFT;
         this.cijena = BigDecimal.ZERO;
-        this.autorId = autorId;
+        this.autorUsername = autorUsername;
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
@@ -148,12 +148,12 @@ public class Tour {
         this.recenzijaId = recenzijaId;
     }
     
-    public Long getAutorId() {
-        return autorId;
+    public String getAutorUsername() {
+        return autorUsername;
     }
     
-    public void setAutorId(Long autorId) {
-        this.autorId = autorId;
+    public void setAutorUsername(String autorUsername) {
+        this.autorUsername = autorUsername;
     }
     
     public LocalDateTime getCreatedAt() {
