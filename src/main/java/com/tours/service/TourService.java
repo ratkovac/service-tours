@@ -1,8 +1,10 @@
 package com.tours.service;
 
+import com.tours.client.StakeholdersRPCClient;
 import com.tours.enums.Difficulty;
 import com.tours.enums.Prevoz;
 import com.tours.enums.TourStatus;
+import com.tours.events.TourEventPublisher;
 import com.tours.model.Tour;
 import com.tours.repository.KeyPointRepository;
 import com.tours.repository.TourRepository;
@@ -22,17 +24,48 @@ public class TourService {
 
     private final TourRepository tourRepository;
     private final KeyPointRepository keyPointRepository;
+    private final StakeholdersRPCClient stakeholdersRPCClient;
+    private final TourEventPublisher tourEventPublisher;
 
     @Autowired
-    public TourService(TourRepository tourRepository, KeyPointRepository keyPointRepository) {
+    public TourService(
+        TourRepository tourRepository, 
+        KeyPointRepository keyPointRepository,
+        StakeholdersRPCClient stakeholdersRPCClient,
+        TourEventPublisher tourEventPublisher
+    ) {
         this.tourRepository = tourRepository;
         this.keyPointRepository = keyPointRepository;
+        this.stakeholdersRPCClient = stakeholdersRPCClient;
+        this.tourEventPublisher = tourEventPublisher;
     }
 
     // Promenjeno: String autorUsername umesto Long autorId
     public Tour createTour(String naziv, String opis, String tagovi, Difficulty tezina, String autorUsername) {
+        
+        // 🔄 RPC POZIV: Provera da li korisnik postoji
+        // Ovo izgleda kao lokalni poziv, ali se izvršava na stakeholders serveru!
+        boolean userExists = stakeholdersRPCClient.checkUserExists(autorUsername);
+        
+        if (!userExists) {
+            throw new IllegalArgumentException("Korisnik ne postoji: " + autorUsername);
+        }
+        
+        // 🔄 RPC POZIV: Provera da li je korisnik blokiran
+        boolean isBlocked = stakeholdersRPCClient.isUserBlocked(autorUsername);
+        
+        if (isBlocked) {
+            throw new IllegalArgumentException("Korisnik je blokiran: " + autorUsername);
+        }
+        
+        // Kreiraj tour
         Tour tour = new Tour(naziv, opis, tagovi, tezina, autorUsername);
-        return tourRepository.save(tour);
+        Tour savedTour = tourRepository.save(tour);
+        
+        // 📤 Šalji event preko RabbitMQ (event-driven)
+        tourEventPublisher.publishTourCreatedEvent(savedTour);
+        
+        return savedTour;
     }
 
     @Transactional(readOnly = true)
