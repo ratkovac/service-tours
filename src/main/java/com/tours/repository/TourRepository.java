@@ -1,5 +1,6 @@
 package com.tours.repository;
 
+import com.tours.enums.TourStatus;
 import com.tours.model.Tour;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -29,4 +30,7 @@ public interface TourRepository extends JpaRepository<Tour, Long> {
 
     // Promenjeno: countByAutorUsernameAndStatus
     long countByAutorUsernameAndStatus(String autorUsername, String status);
+
+    // Metoda za dobijanje svih tura sa određenim statusom
+    List<Tour> findByStatus(TourStatus status);
 }
