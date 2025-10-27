@@ -1,6 +1,7 @@
 package com.tours.model;
 
 import com.tours.enums.Difficulty;
+import com.tours.enums.Prevoz;
 import com.tours.enums.TourStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +11,8 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "tours")
@@ -58,6 +61,22 @@ public class Tour {
     
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    
+    @Column(name = "duzina")
+    private Double duzina; // Dužina ture u kilometrima
+    
+    @Column(name = "vreme_objave")
+    private LocalDateTime vremeObjave;
+    
+    @Column(name = "vreme_arhiviranja")
+    private LocalDateTime vremeArhiviranja;
+    
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "tour_prevozi", joinColumns = @JoinColumn(name = "tour_id"))
+    @MapKeyEnumerated(EnumType.STRING)
+    @Column(name = "trajanje_minuti")
+    @MapKeyColumn(name = "prevoz")
+    private Map<Prevoz, Integer> prevozi = new HashMap<>(); // Map<Prevoz, trajanje u minutima>
     
     public Tour() {
     }
@@ -170,5 +189,37 @@ public class Tour {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public Double getDuzina() {
+        return duzina;
+    }
+    
+    public void setDuzina(Double duzina) {
+        this.duzina = duzina;
+    }
+    
+    public LocalDateTime getVremeObjave() {
+        return vremeObjave;
+    }
+    
+    public void setVremeObjave(LocalDateTime vremeObjave) {
+        this.vremeObjave = vremeObjave;
+    }
+    
+    public LocalDateTime getVremeArhiviranja() {
+        return vremeArhiviranja;
+    }
+    
+    public void setVremeArhiviranja(LocalDateTime vremeArhiviranja) {
+        this.vremeArhiviranja = vremeArhiviranja;
+    }
+    
+    public Map<Prevoz, Integer> getPrevozi() {
+        return prevozi;
+    }
+    
+    public void setPrevozi(Map<Prevoz, Integer> prevozi) {
+        this.prevozi = prevozi;
     }
 }

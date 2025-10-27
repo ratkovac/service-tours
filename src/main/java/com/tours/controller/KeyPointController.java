@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/keypoints")
+@RequestMapping("/api/tours/keypoints")
 public class KeyPointController {
     
     private final KeyPointService keyPointService;
@@ -118,6 +118,21 @@ public class KeyPointController {
     public ResponseEntity<Map<String, Object>> getKeyPointCountByAuthor(@RequestHeader("X-Username") String autorUsername) {
         long count = keyPointService.countKeyPointsByAuthor(autorUsername);
         return ResponseEntity.ok(Map.of("count", count));
+    }
+
+    @GetMapping("/tour/{tourId}/first")
+    public ResponseEntity<?> getFirstKeyPointByTourId(@PathVariable Long tourId) {
+        try {
+            Optional<KeyPoint> firstKeyPoint = keyPointService.getFirstKeyPointByTourId(tourId);
+            if (firstKeyPoint.isPresent()) {
+                return ResponseEntity.ok(firstKeyPoint.get());
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Greška pri dobijanju prve ključne tačke: " + e.getMessage()));
+        }
     }
 }
 

@@ -74,18 +74,27 @@ public class TourController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllToursByAuthor() {
+    public ResponseEntity<?> getAllToursByAuthor(@RequestHeader(value = "X-User-Role", required = false) String role) {
         try {
             String autorUsername = getCurrentUsername();
-            System.out.println("🔍 TourController - getAllToursByAuthor - autorUsername: " + autorUsername);
+            System.out.println("🔍 TourController - getAllToursByAuthor - autorUsername: " + autorUsername + ", role: " + role);
+            
             if (autorUsername == null || autorUsername.isEmpty()) {
                 System.err.println("⚠️ Username je NULL ili prazan!");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Korisnik nije autentifikovan - username nedostaje"));
             }
 
+            // Ako je turista, vraćaj sve objavljene ture
+            if ("ROLE_TOURIST".equals(role)) {
+                List<Tour> tours = tourService.getAllPublishedTours();
+                System.out.println("✅ Turista vidi: " + tours.size() + " objavljenih tura");
+                return ResponseEntity.ok(tours);
+            }
+
+            // Inače, vraćaj ture autora (vodiča/admink).
             List<Tour> tours = tourService.getAllToursByAuthor(autorUsername);
-            System.out.println("✅ Pronađeno tura: " + tours.size());
+            System.out.println("✅ Autor vidi: " + tours.size() + " svojih tura");
             return ResponseEntity.ok(tours);
         } catch (Exception e) {
             System.err.println("❌ ERROR u getAllToursByAuthor: " + e.getMessage());
@@ -122,6 +131,14 @@ public class TourController {
 
         try {
             TourStatus tourStatus = TourStatus.valueOf(status.toUpperCase());
+            
+            // Za PUBLISHED ture, vraćamo SVE objavljene ture (za turiste)
+            if (tourStatus == TourStatus.PUBLISHED) {
+                List<Tour> tours = tourService.getAllPublishedTours();
+                return ResponseEntity.ok(tours);
+            }
+            
+            // Za DRAFT i ARCHIVED, vraćamo samo ture trenutnog korisnika
             List<Tour> tours = tourService.getToursByStatusAndAuthor(tourStatus, autorUsername);
             return ResponseEntity.ok(tours);
         } catch (IllegalArgumentException e) {
@@ -231,5 +248,65 @@ public class TourController {
         );
 
         return ResponseEntity.ok(stats);
+    }
+
+    @PutMapping("/{id}/publish")
+    public ResponseEntity<?> publishTour(@PathVariable Long id) {
+        String autorUsername = getCurrentUsername();
+        if (autorUsername == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Korisnik nije autentifikovan"));
+        }
+
+        try {
+            Tour tour = tourService.publishTour(id, autorUsername);
+            return ResponseEntity.ok(tour);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}/archive")
+    public ResponseEntity<?> archiveTour(@PathVariable Long id) {
+        String autorUsername = getCurrentUsername();
+        if (autorUsername == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Korisnik nije autentifikovan"));
+        }
+
+        try {
+            Tour tour = tourService.archiveTour(id, autorUsername);
+            return ResponseEntity.ok(tour);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}/activate")
+    public ResponseEntity<?> activateTour(@PathVariable Long id) {
+        String autorUsername = getCurrentUsername();
+        if (autorUsername == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Korisnik nije autentifikovan"));
+        }
+
+        try {
+            Tour tour = tourService.activateTour(id, autorUsername);
+            return ResponseEntity.ok(tour);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 }
