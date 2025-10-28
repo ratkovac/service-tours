@@ -42,7 +42,6 @@ public class KeyPointService {
             throw new IllegalArgumentException("Tura nije pronađena ili ne pripada autoru");
         }
         
-        // Proveri da li tura može da se edit-uje (samo DRAFT)
         if (tour.get().getStatus() != TourStatus.DRAFT) {
             throw new IllegalArgumentException("Ključna tačka se može dodati samo ako je tura u statusu DRAFT");
         }
@@ -50,14 +49,12 @@ public class KeyPointService {
         KeyPoint keyPoint = new KeyPoint(naziv, opis, latitude, longitude, slikaUrl, tourId);
         KeyPoint savedKeyPoint = keyPointRepository.save(keyPoint);
         
-        // Računaj dužinu ture ako ima najmanje 2 ključne tačke
         long keyPointCount = keyPointRepository.countByTourId(tourId);
         if (keyPointCount >= 2) {
             List<KeyPoint> keyPoints = keyPointRepository.findByTourIdAndAuthorUsername(tourId, autorUsername);
             double airDistance = calculateTotalDistance(keyPoints); // Vazduhshna linija
             Tour t = tour.get();
             
-            // Izračunaj tačnu dužinu po drumovima koristeći OSRM (driving profile)
             try {
                 StringBuilder coordinates = new StringBuilder();
                 for (KeyPoint kp : keyPoints) {
@@ -68,16 +65,12 @@ public class KeyPointService {
                 double roadDistance = getRoadDistanceFromOSRM(coordinates.toString());
                 t.setDuzina(roadDistance); // Koristi dužinu po drumovima
             } catch (Exception e) {
-                // Fallback na vazduhshnu liniju ako OSRM ne radi
                 System.err.println("OSRM neuspeh, koristim vazduhshnu liniju: " + e.getMessage());
                 t.setDuzina(airDistance);
             }
             
-            // Automatski izračunaj trajanje (različito za različite prevoze)
             if (t.getDuzina() > 0) {
                 Map<Prevoz, Integer> prevozi = new HashMap<>();
-                // Prosečne brzine (u km/h): peške=4, bicikl=15, auto=30
-                // Formula: vreme = (dužina / brzina) * 60
                 int vremePeske = (int) Math.round((t.getDuzina() / 4.0) * 60);    // 4 km/h
                 int vremeBicikl = (int) Math.round((t.getDuzina() / 15.0) * 60);  // 15 km/h
                 int vremeAuto = (int) Math.round((t.getDuzina() / 30.0) * 60);     // 30 km/h (gradska brzina)
@@ -93,7 +86,6 @@ public class KeyPointService {
         return savedKeyPoint;
     }
     
-    // Računaj dužinu između svih ključnih tačaka u kilometrima
     private double calculateTotalDistance(List<KeyPoint> keyPoints) {
         if (keyPoints.size() < 2) {
             return 0.0;
@@ -104,7 +96,6 @@ public class KeyPointService {
             KeyPoint current = keyPoints.get(i);
             KeyPoint next = keyPoints.get(i + 1);
             
-            // Haversine formula
             double lat1 = Math.toRadians(current.getLatitude());
             double lat2 = Math.toRadians(next.getLatitude());
             double lon1 = Math.toRadians(current.getLongitude());
@@ -154,7 +145,6 @@ public class KeyPointService {
         
         KeyPoint keyPoint = existingKeyPoint.get();
         
-        // Proveri status parent tour-a
         Optional<Tour> tour = tourRepository.findById(keyPoint.getTourId());
         if (tour.isPresent() && tour.get().getStatus() != TourStatus.DRAFT) {
             throw new IllegalArgumentException("Ključna tačka se može editovati samo ako je tura u statusu DRAFT");
@@ -172,7 +162,6 @@ public class KeyPointService {
     public boolean deleteKeyPoint(Long keyPointId, String autorUsername) {
         Optional<KeyPoint> keyPoint = keyPointRepository.findByIdAndAuthorUsername(keyPointId, autorUsername);
         if (keyPoint.isPresent()) {
-            // Proveri status parent tour-a
             Optional<Tour> tour = tourRepository.findById(keyPoint.get().getTourId());
             if (tour.isPresent() && tour.get().getStatus() != TourStatus.DRAFT) {
                 throw new IllegalArgumentException("Ključna tačka se može obrisati samo ako je tura u statusu DRAFT");
@@ -202,10 +191,7 @@ public class KeyPointService {
     public Optional<KeyPoint> getFirstKeyPointByTourId(Long tourId) {
         return keyPointRepository.findFirstByTourIdOrderByCreatedAtAsc(tourId);
     }
-    
-    /**
-     * Poziva OSRM API i vraća udaljenost po drumovima u kilometrima
-     */
+
     private double getRoadDistanceFromOSRM(String coordinates) {
         try {
             String url = String.format("https://router.project-osrm.org/route/v1/driving/%s?overview=false&alternatives=false", coordinates);
@@ -229,14 +215,11 @@ public class KeyPointService {
                 if (jsonNode.has("routes") && jsonNode.get("routes").isArray() && jsonNode.get("routes").size() > 0) {
                     JsonNode route = jsonNode.get("routes").get(0);
                     
-                    // OSRM vraća udaljenost u metrima
                     int distanceInMeters = route.get("distance").asInt();
-                    // Pretvori u kilometre
                     return distanceInMeters / 1000.0;
                 }
             }
             
-            // Fallback
             return 0.0;
             
         } catch (Exception e) {

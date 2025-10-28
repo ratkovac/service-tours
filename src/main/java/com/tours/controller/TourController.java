@@ -31,7 +31,6 @@ public class TourController {
     }
 
     private String getCurrentUsername() {
-        // Try to get username from API Gateway header first
         String username = httpServletRequest.getHeader("X-Username");
         System.out.println("🔍 getCurrentUsername() - X-Username header: " + username);
         
@@ -85,14 +84,12 @@ public class TourController {
                         .body(Map.of("error", "Korisnik nije autentifikovan - username nedostaje"));
             }
 
-            // Ako je turista, vraćaj sve objavljene ture
             if ("ROLE_TOURIST".equals(role)) {
                 List<Tour> tours = tourService.getAllPublishedTours();
                 System.out.println("✅ Turista vidi: " + tours.size() + " objavljenih tura");
                 return ResponseEntity.ok(tours);
             }
 
-            // Inače, vraćaj ture autora (vodiča/admink).
             List<Tour> tours = tourService.getAllToursByAuthor(autorUsername);
             System.out.println("✅ Autor vidi: " + tours.size() + " svojih tura");
             return ResponseEntity.ok(tours);
