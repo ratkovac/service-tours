@@ -28,7 +28,7 @@ public class TouristLocationController {
         return ResponseEntity.ok(updatedLocation);
     }
 
-    @GetMapping("/current/{userId}")
+    @GetMapping("/current/{username}")
     public ResponseEntity<TouristLocation> getCurrentLocation(@PathVariable String username) {
         TouristLocation location = touristLocationService.getCurrentLocation(username);
         if (location != null) {
