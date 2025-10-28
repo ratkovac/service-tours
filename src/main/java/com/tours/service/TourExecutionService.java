@@ -28,7 +28,7 @@ public class TourExecutionService {
     private final TouristLocationService positionSimulatorService; // Za interakciju sa Position Simulatorom
 
     // Threshold for considering a tourist "near" a key point (e.g., 50 meters)
-    private static final double DISTANCE_THRESHOLD_METERS = 50.0;
+    private static final double DISTANCE_THRESHOLD_METERS = 300.0;
 
     @Autowired
     public TourExecutionService(TourExecutionRepository tourExecutionRepository,
