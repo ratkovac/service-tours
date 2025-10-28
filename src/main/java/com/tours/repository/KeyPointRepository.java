@@ -27,7 +27,6 @@ public interface KeyPointRepository extends JpaRepository<KeyPoint, Long> {
     @Query("SELECT COUNT(kp) FROM KeyPoint kp JOIN Tour t ON kp.tourId = t.id WHERE t.autorUsername = :autorUsername")
     long countByAuthorUsername(@Param("autorUsername") String autorUsername);
     
-    // Metoda za pronalaženje prve keypoint (sortirano po datumu kreiranja)
     java.util.Optional<KeyPoint> findFirstByTourIdOrderByCreatedAtAsc(Long tourId);
 }
 
