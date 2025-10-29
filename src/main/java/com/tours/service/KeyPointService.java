@@ -119,11 +119,11 @@ public class KeyPointService {
     @Transactional(readOnly = true)
     public List<KeyPoint> getAllKeyPointsByTour(Long tourId, String autorUsername) {
         Optional<Tour> tour = tourRepository.findById(tourId);
-        if (tour.isEmpty() || !tour.get().getAutorUsername().equals(autorUsername)) {
+        if (tour.isEmpty()) {
             throw new IllegalArgumentException("Tura nije pronađena ili ne pripada autoru");
         }
         
-        return keyPointRepository.findByTourIdAndAuthorUsername(tourId, autorUsername);
+        return keyPointRepository.findByTourId(tourId);
     }
     
     @Transactional(readOnly = true)
