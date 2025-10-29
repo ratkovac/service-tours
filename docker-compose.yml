@@ -13,6 +13,9 @@ services:
       - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka:8761/eureka/
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
       - SERVER_PORT=8083
+      # gRPC Client konfiguracija za Stakeholders Service
+      - GRPC_CLIENT_STAKEHOLDERS-SERVICE_ADDRESS=static://service-stakeholders:9094
+      - GRPC_CLIENT_STAKEHOLDERS-SERVICE_NEGOTIATIONTYPE=PLAINTEXT
     depends_on:
       - postgres
     networks:
