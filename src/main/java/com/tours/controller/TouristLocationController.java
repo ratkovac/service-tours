@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/tourist-location")
+@RequestMapping("/api/tours/tourist-location")
 public class TouristLocationController {
 
     private final TouristLocationService touristLocationService;

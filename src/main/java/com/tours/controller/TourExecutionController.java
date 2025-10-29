@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/tour-execution")
+@RequestMapping("/api/tours/tour-execution")
 public class TourExecutionController {
 
     private final TourExecutionService tourExecutionService;
